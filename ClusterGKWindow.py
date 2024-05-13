@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QSplitter, QPushButton, QVBoxLayout, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QDialog, QComboBox, QWidget, QSplitter, QPushButton, QVBoxLayout, QShortcut, QAction, QTableWidget, QAbstractItemView, QTableWidgetItem, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
 from clusterization import clusterization
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+from BestPlayersDialog import ResultsDialog, SelectCriterialDialog
+import matplotlib.pyplot as plt
 
 class ClusterGKWindow(QMainWindow):
     def __init__(self, gk_window, dictOfGKs):
@@ -39,12 +41,17 @@ class ClusterGKWindow(QMainWindow):
         back_action.setShortcut('Ctrl+Z')
         back_action.triggered.connect(self.backToGK)
 
+        best_action = QAction('&Определить лучших', self)
+        best_action.setShortcut('Ctrl+B')
+        best_action.triggered.connect(self.getBestGK)
+
         help_action = QAction('&Помощь', self)
         help_action.setShortcut('Ctrl+H')
         help_action.triggered.connect(self.showHelp)
 
         file_menu = self.menuBar()
         file_menu.addAction(back_action)
+        file_menu.addAction(best_action)
         file_menu.addAction(help_action)
 
         self.figure = Figure()
@@ -84,6 +91,36 @@ class ClusterGKWindow(QMainWindow):
             self.bestPlayersTable.setItem(row_position, 0, QTableWidgetItem(player))
             self.bestPlayersTable.setItem(row_position, 1, QTableWidgetItem(f"{point[0]:.2f}, {point[1]:.2f}"))
         self.bestPlayersTable.resizeColumnsToContents()
+        self.bestPlayersTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+    def getBestGK(self):
+        dialog = SelectCriterialDialog(self.enum, self)
+        if dialog.exec_() == QDialog.Accepted:
+            selected_stats = dialog.selected_criteria()
+            if not selected_stats:
+                QMessageBox.warning(self, "Внимание", "Не выбраны критерии для анализа.")
+                return
+
+            player_scores = {}
+            for position, players in self.dct.items():
+                for player_name in players.keys():
+                    player_scores[player_name] = 0
+
+            for stat, priority in selected_stats:
+                index = self.enum.index(stat)
+                fig, ax = plt.subplots()
+                labels, centroids, players_data, _, _ = clusterization(index, index, self.dct, ax, stat, stat)
+                plt.close(fig)
+
+                best_cluster_index = np.argmax(np.mean(centroids, axis=1))
+                for label, player_data in zip(labels, players_data):
+                    if label == best_cluster_index:
+                        player_name = player_data[1]
+                        player_scores[player_name] += len(self.enum) - priority + 1
+
+            best_players = sorted(player_scores.items(), key=lambda x: x[1], reverse=True)[:5]
+            results_dialog = ResultsDialog(best_players, self)
+            results_dialog.exec_()
 
     def backToGK(self):
         self.close()
