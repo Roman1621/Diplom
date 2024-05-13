@@ -3,7 +3,6 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
 
 from ClusterGKWindow import ClusterGKWindow
-from BestPlayersDialog import ResultsDialog, SelectCriterialDialog, calculate_scores
 
 class GoalkeepersWindow(QMainWindow):
     def __init__(self, main_window, dictOfGKs):
@@ -32,10 +31,6 @@ class GoalkeepersWindow(QMainWindow):
         clusterization_action.setShortcut('Ctrl+A')
         clusterization_action.triggered.connect(self.openClusterGKWindow)
 
-        best_action = QAction('&Определить лучших', self)
-        best_action.setShortcut('Ctrl+B')
-        best_action.triggered.connect(self.showResults)
-
         help_action = QAction('&Помощь', self)
         help_action.setShortcut('Ctrl+H')
         help_action.triggered.connect(self.showHelp)
@@ -44,7 +39,6 @@ class GoalkeepersWindow(QMainWindow):
         file_menu.addAction(back_action)
         file_menu.addAction(sorting_action)
         file_menu.addAction(clusterization_action)
-        file_menu.addAction(best_action)
         file_menu.addAction(help_action)
 
         self.dct = dictOfGKs
@@ -100,18 +94,6 @@ class GoalkeepersWindow(QMainWindow):
             self.GKtable.clearContents()
             self.populateTable()
         
-    def showResults(self):
-        criterial = SelectCriterialDialog(self.enum, self)
-        '''if criterial.exec_():
-            print(criterial)
-            selected = [cb.text() for cb in criterial.checkboxes if cb.isChecked()]
-            scores = calculate_scores(self.dct, selected)
-            results = sorted(scores.items, key=lambda x: x[1], reverse=True)
-            res = ResultsDialog(results, self)
-            res.exec_()
-        else:
-            QMessageBox.information(self, "Предупреждение: не выбраны ключевые показатели", "Невозможно определить лучших")
-    '''
     def backToMain(self):
         self.close()
         self.mainWindow.show()
