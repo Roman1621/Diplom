@@ -101,24 +101,21 @@ class ClusterGKWindow(QMainWindow):
                 QMessageBox.warning(self, "Внимание", "Не выбраны критерии для анализа.")
                 return
 
-            player_scores = {}
+            player_stats = {}
             for position, players in self.dct.items():
-                for player_name in players.keys():
-                    player_scores[player_name] = 0
+                for player_name, stats in players.items():
+                    player_stats[player_name] = stats
 
-            for stat, priority in selected_stats:
-                index = self.enum.index(stat)
-                fig, ax = plt.subplots()
-                labels, centroids, players_data, _, _ = clusterization(index, index, self.dct, ax, stat, stat)
-                plt.close(fig)
+            player_scores = {}
+            for player_name, stats in player_stats.items():
+                player_scores[player_name] = [stats[self.enum.index(stat)] for stat, _ in selected_stats]
 
-                best_cluster_index = np.argmax(np.mean(centroids, axis=1))
-                for label, player_data in zip(labels, players_data):
-                    if label == best_cluster_index:
-                        player_name = player_data[1]
-                        player_scores[player_name] += len(self.enum) - priority + 1
+            best_players = []
+            for player_name, stats in player_scores.items():
+                score = sum([len(self.enum) - priority + 1 for _, priority in selected_stats]) * sum(stats)
+                best_players.append((player_name, *stats, score))
 
-            best_players = sorted(player_scores.items(), key=lambda x: x[1], reverse=True)[:5]
+            best_players = sorted(best_players, key=lambda x: x[-1], reverse=True)[:5]
             results_dialog = ResultsDialog(best_players, self)
             results_dialog.exec_()
 

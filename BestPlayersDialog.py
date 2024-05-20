@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QCheckBox, QSpinBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QCheckBox, QSpinBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 
 class SelectCriterialDialog(QDialog):
@@ -12,7 +12,7 @@ class SelectCriterialDialog(QDialog):
         for stat in en:
             cb = QCheckBox(stat, self)
             sb = QSpinBox(self)
-            sb.setRange(1, len(en))  # Приоритеты от 1 до количества показателей
+            sb.setRange(1, len(en))
             sb.setEnabled(False)
             cb.stateChanged.connect(lambda state, sb=sb: sb.setEnabled(state == Qt.Checked))
             layout.addWidget(cb)
@@ -32,20 +32,24 @@ class ResultsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Результаты анализа")
         self.setGeometry(100, 100, 400, 600)
-
+        
         layout = QVBoxLayout(self)
 
-        for player, score in diction:
-            layout.addWidget(QLabel(f"{player}: {score:.2f}"))
+        num_stats = len(diction[0]) - 1  # Определяем количество статистических характеристик
 
+        self.resultsTable = QTableWidget(0, num_stats + 1)
+        header_labels = ["Имя игрока"] + [f"Характеристика {i+1}" for i in range(num_stats)]
+        self.resultsTable.setHorizontalHeaderLabels(header_labels)
+        layout.addWidget(self.resultsTable)
+
+        for player, *stats in diction:
+            row_position = self.resultsTable.rowCount()
+            self.resultsTable.insertRow(row_position)
+            self.resultsTable.setItem(row_position, 0, QTableWidgetItem(player))
+            for i, stat in enumerate(stats):
+                self.resultsTable.setItem(row_position, i + 1, QTableWidgetItem(f"{stat:.2f}"))
+
+        self.resultsTable.resizeColumnsToContents()
         close_button = QPushButton("&Назад", self)
         close_button.clicked.connect(self.accept)
         layout.addWidget(close_button)
-
-    def set_results(self, results):
-        for i in reversed(range(self.layout().count())):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLabel):
-                widget.deleteLater()
-        for player, score in results:
-            self.layout().insertWidget(self.layout().count() - 1, QLabel(f"{player}: {score:.2f}"))
