@@ -63,8 +63,12 @@ class GoalkeepersWindow(QMainWindow):
             self.GKtable.horizontalHeaderItem(i).setTextAlignment(Qt.AlignHCenter)
 
         row = 0
+        invalid_players = []
         for players in self.dct.values():
             for player, charac in players.items():
+                if len(charac) != 13:  # проверка на недостаток значений в массиве
+                    invalid_players.append(player)
+                    continue
                 for col in range(14):
                     item = QTableWidgetItem()
                     if col == 0:
@@ -73,6 +77,8 @@ class GoalkeepersWindow(QMainWindow):
                         item.setData(Qt.DisplayRole, float(charac[col-1]))
                     self.GKtable.setItem(row, col, item)
                 row += 1
+        if invalid_players:
+            QMessageBox.warning(self, "Внимание", f"У следующих игроков недостаточно значений в массиве:\n{', '.join(invalid_players)}")
         self.GKtable.resizeColumnsToContents()
         self.GKtable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.GKtable.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -92,7 +98,7 @@ class GoalkeepersWindow(QMainWindow):
         self.mainWindow.show()
     
     def openClusterGKWindow(self):
-        self.cluster_window = ClusterGKWindow(self, self.dct)
+        self.cluster_window = ClusterGKWindow(self, self.dct, self.enum)
         self.cluster_window.show()
 
     def showHelp(self):

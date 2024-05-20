@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QVBoxLayout, QSplitter, QPushButton, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QDialog, QVBoxLayout, QSplitter, QPushButton, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
 from clusterization import clusterization
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import numpy as np
+from BestPlayersDialog import SelectCriterialDialog, ResultsDialog
 
 class ClusterFPWindow(QMainWindow):
-    def __init__(self, fp_window, dictOfFPs):
+    def __init__(self, fp_window, dictOfFPs, listOfChar):
         super().__init__()
         self.FPWindow = fp_window
         self.dct = dictOfFPs.copy()
@@ -38,18 +39,35 @@ class ClusterFPWindow(QMainWindow):
         back_action.setShortcut('Ctrl+Z')
         back_action.triggered.connect(self.backToFP)
 
+        best_action = QAction('&Определить лучших', self)
+        best_action.setShortcut('Ctrl+B')
+        best_action.triggered.connect(self.getBestFP)
+
         help_action = QAction('&Помощь', self)
         help_action.setShortcut('Ctrl+H')
         help_action.triggered.connect(self.showHelp)
 
         file_menu = self.menuBar()
         file_menu.addAction(back_action)
+        file_menu.addAction(best_action)
         file_menu.addAction(help_action)
         
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.dataLayout.addWidget(self.canvas)
-        self.enum = ['Non-Penalty Goals', 'Non-Penalty xG', 'Shots Total', 'Assists', 'xAG', 'npxG+xAG', 'Shot-Creating Actions', 'Passes Attempted', 'Pass Completion %', 'Progressive Passes', 'Progressive Carries', 'Successful Take-Ons', 'Touches', 'Progressive Passes Rec', 'Tackles', 'Interceptions', 'Blocks', 'Clearances', 'Aerials won']
+        if listOfChar is None:
+            lengths = []
+            for position, players in self.dct.items():
+                for name, characteristics in players.items():
+                    lengths.append(len(characteristics))
+
+            if lengths:
+                average_length = round(sum(lengths) / len(lengths))
+            else:
+                average_length = 0
+            self.enum = ['Characteristic' + str(i + 1) for i in range(average_length)]
+        else:
+            self.enum = listOfChar
         self.comboBox1 = QComboBox()
         self.comboBox2 = QComboBox()
         self.comboBox1.addItems(self.enum)
@@ -84,6 +102,33 @@ class ClusterFPWindow(QMainWindow):
             self.bestPlayersTable.setItem(row_position, 1, QTableWidgetItem(f"{point[0]:.2f}, {point[1]:.2f}"))
         self.bestPlayersTable.resizeColumnsToContents()
 
+    def getBestFP(self):
+        if self.enum:
+            dialog = SelectCriterialDialog(self.enum, self)
+        if dialog.exec_() == QDialog.Accepted:
+            selected_stats = dialog.selected_criteria()
+            if not selected_stats:
+                QMessageBox.warning(self, "Внимание", "Не выбраны критерии для анализа.")
+                return
+
+            player_stats = {}
+            for position, players in self.dct.items():
+                for player_name, stats in players.items():
+                    player_stats[player_name] = stats
+
+            player_scores = {}
+            for player_name, stats in player_stats.items():
+                player_scores[player_name] = [stats[self.enum.index(stat)] for stat, _ in selected_stats]
+
+            best_players = []
+            for player_name, stats in player_scores.items():
+                score = sum([len(self.enum) - priority + 1 for _, priority in selected_stats]) * sum(stats)
+                best_players.append((player_name, *stats, score))
+
+            best_players = sorted(best_players, key=lambda x: x[-1], reverse=True)[:5]
+            results_dialog = ResultsDialog(best_players, self)
+            results_dialog.exec_()
+    
     def backToFP(self):
         self.close()
         self.FPWindow.show()

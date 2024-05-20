@@ -9,7 +9,7 @@ from BestPlayersDialog import ResultsDialog, SelectCriterialDialog
 import matplotlib.pyplot as plt
 
 class ClusterGKWindow(QMainWindow):
-    def __init__(self, gk_window, dictOfGKs):
+    def __init__(self, gk_window, dictOfGKs, listOfChar):
         super().__init__()
         self.GKWindow = gk_window
         self.dct = dictOfGKs.copy()
@@ -57,7 +57,19 @@ class ClusterGKWindow(QMainWindow):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.dataLayout.addWidget(self.canvas)
-        self.enum = ['PSxG-GA', 'Goals Against', 'Save Percentage', 'PSxG/SoT', 'Save%', 'Clean Sheet Percentage', 'Touches', 'Launch %', 'Goal Kicks', 'Avg. Length of Goal Kicks', 'Crosses Stopped %', 'Def. Actions Outside Pen. Area', 'Avg. Distance of Def. Actions']
+        if listOfChar is None:
+            lengths = []
+            for position, players in self.dct.items():
+                for name, characteristics in players.items():
+                    lengths.append(len(characteristics))
+
+            if lengths:
+                average_length = round(sum(lengths) / len(lengths))
+            else:
+                average_length = 0
+            self.enum = ['Characteristic' + str(i + 1) for i in range(average_length)]
+        else:
+            self.enum = listOfChar
         self.comboBox1 = QComboBox()
         self.comboBox2 = QComboBox()
         self.comboBox1.addItems(self.enum)
@@ -94,7 +106,8 @@ class ClusterGKWindow(QMainWindow):
         self.bestPlayersTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def getBestGK(self):
-        dialog = SelectCriterialDialog(self.enum, self)
+        if self.enum:
+            dialog = SelectCriterialDialog(self.enum, self)
         if dialog.exec_() == QDialog.Accepted:
             selected_stats = dialog.selected_criteria()
             if not selected_stats:
