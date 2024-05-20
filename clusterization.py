@@ -27,7 +27,7 @@ def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel):
         reverse_indices.append(1)
     n_points = normalize_data(points, reverse_indices)
 
-    kmeans = KMeans(n_clusters=9, random_state=0).fit(n_points)
+    kmeans = KMeans(n_clusters=9, random_state=0, n_init=10).fit(n_points)
     labels = kmeans.labels_
     centroids = kmeans.cluster_centers_
 
