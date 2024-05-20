@@ -119,7 +119,7 @@ class FieldPlayersWindow(QMainWindow):
         self.mainWindow.show()
 
     def openClusterFPWindow(self):
-        self.cluster_window = ClusterFPWindow(self, self.display_data)
+        self.cluster_window = ClusterFPWindow(self, self.display_data, self.enum)
         self.cluster_window.show()
     
     def showHelp(self):

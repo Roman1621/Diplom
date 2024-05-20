@@ -1,11 +1,17 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QCheckBox, QSpinBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QWidget, QScrollArea, QPushButton, QCheckBox, QSpinBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 
 class SelectCriterialDialog(QDialog):
     def __init__(self, en, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Выбор критериев")
-        layout = QVBoxLayout(self)
+        scroll = QScrollArea(self)
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        scroll.setWidget(widget)
+        scroll.setWidgetResizable(True)
+        self.setLayout(QVBoxLayout(self))
+        self.layout().addWidget(scroll)
         
         self.checkboxes = []
         self.spinboxes = []
