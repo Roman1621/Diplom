@@ -1,4 +1,4 @@
-NON-GK
+#NON-GK
 ['Non-Penalty Goals',
   'Non-Penalty xG',
   'Shots Total',
@@ -19,7 +19,7 @@ NON-GK
   'Clearances',
   'Aerials won']
 
-GK
+#GK
 ['PSxG-GA',
   'Goals Against',
   'Save Percentage',

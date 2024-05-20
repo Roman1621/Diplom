@@ -8,3 +8,21 @@ def parsDStoDict(path):
         attList = ast.literal_eval(row['Attribute Vector'])
         d[row['Name']] = attList
     return d
+
+def parsAtNames(path):
+    with open(path) as file:
+        data = file.read().strip().split('\n')
+        attribute_dict = {}
+        current_section = None
+        section_marker = '#'  # Предполагаемый разделитель секций
+        for line in data:
+            if line == '':
+                continue
+            if line.startswith(section_marker):
+                current_section = line.replace(section_marker, '')
+                attribute_dict[current_section] = []
+            else:
+                if current_section is not None:
+                    line = line[1:-1]
+                    attribute_dict[current_section].append(ast.literal_eval(line))
+        return attribute_dict

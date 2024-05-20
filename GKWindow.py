@@ -5,7 +5,7 @@ from PyQt5.QtGui import QKeySequence
 from ClusterGKWindow import ClusterGKWindow
 
 class GoalkeepersWindow(QMainWindow):
-    def __init__(self, main_window, dictOfGKs):
+    def __init__(self, main_window, dictOfGKs, GKchar=None):
         super().__init__()
         self.mainWindow = main_window
         self.setWindowTitle("КтоЗабил. Вратари")
@@ -42,32 +42,25 @@ class GoalkeepersWindow(QMainWindow):
         file_menu.addAction(help_action)
 
         self.dct = dictOfGKs
+        self.enum = GKchar
         self.GKtable = QTableWidget(self)
         self.populateTable()
-        self.enum = ['PSxG-GA', 'Goals Against', 'Save Percentage', 'PSxG/SoT', 'Save%', 'Clean Sheet Percentage', 'Touches', 'Launch %', 'Goal Kicks', 'Avg. Length of Goal Kicks', 'Crosses Stopped %', 'Def. Actions Outside Pen. Area', 'Avg. Distance of Def. Actions']
-    
+
     def populateTable(self):
         self.GKtable.setColumnCount(14)
         rowsCount = 0
         for cur in self.dct.values():
             rowsCount += len(cur)
         self.GKtable.setRowCount(rowsCount)
-
-        self.GKtable.setHorizontalHeaderLabels(['Name', 'PSxG-GA', 'Goals\nAgainst', 'Save\nPercentage', 'PSxG/SoT', 'Save%', 'Clean\nSheet\nPercentage', 'Touches', 'Launch %', 'Goal\nKicks', 'Avg. Length\nof\nGoal Kicks', 'Crosses\nStopped %', 'Def. Actions\nOutside\nPen. Area', 'Avg. Distance\nof\nDef. Actions'])
-        self.GKtable.horizontalHeaderItem(0).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(1).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(2).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(3).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(4).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(5).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(6).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(7).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(8).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(9).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(10).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(11).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(12).setTextAlignment(Qt.AlignHCenter)
-        self.GKtable.horizontalHeaderItem(13).setTextAlignment(Qt.AlignHCenter)
+        
+        if self.enum:
+            headers = ['Name'] + self.enum   
+        else:
+            headers = ['Name'] + ['']*13
+        
+        self.GKtable.setHorizontalHeaderLabels(headers)
+        for i in range(14):
+            self.GKtable.horizontalHeaderItem(i).setTextAlignment(Qt.AlignHCenter)
 
         row = 0
         for players in self.dct.values():
