@@ -4,7 +4,7 @@ from PyQt5.QtGui import QKeySequence
 from ClusterFPWindow import *
 
 class FieldPlayersWindow(QMainWindow):
-    def __init__(self, main_window, dictOfPls):
+    def __init__(self, main_window, dictOfPls, nonGKChar):
         super().__init__()
         self.mainWindow = main_window
         self.setWindowTitle("КтоЗабил. Полевые")
@@ -37,10 +37,6 @@ class FieldPlayersWindow(QMainWindow):
         clusterization_action.setShortcut('Ctrl+A')
         clusterization_action.triggered.connect(self.openClusterFPWindow)
 
-        best_action = QAction('&Определить лучших', self)
-        best_action.setShortcut('Ctrl+B')
-        best_action.triggered.connect(self.showResults)
-
         help_action = QAction('&Помощь', self)
         help_action.setShortcut('Ctrl+H')
         help_action.triggered.connect(self.showHelp)
@@ -51,9 +47,9 @@ class FieldPlayersWindow(QMainWindow):
         file_menu.addAction(filter_action)
         file_menu.addAction(reset_filter)
         file_menu.addAction(clusterization_action)
-        file_menu.addAction(best_action)
         file_menu.addAction(help_action)
 
+        self.enum = nonGKChar
         self.original_data = dictOfPls.copy()
         self.display_data = dictOfPls.copy()
         self.numOfPos = len(dictOfPls)
@@ -68,28 +64,14 @@ class FieldPlayersWindow(QMainWindow):
         self.FPtable.setRowCount(0)
         row = 0
 
-        self.FPtable.setHorizontalHeaderLabels(['Name', 'Position', 'Non-Penalty\nGoals', 'Non-Penalty\nxG', 'Shots\nTotal', 'Assists', 'xAG', 'npxG\n+\nxAG', 'Shot-Creating\nActions', 'Passes\nAttempted', 'Pass\nCompletion %', 'Progressive\nPasses', 'Progressive\nCarries', 'Successful\nTake-Ons', 'Touches', 'Progressive\nPasses Rec', 'Tackles', 'Interceptions', 'Blocks', 'Clearances', 'Aerials\nwon'])
-        self.FPtable.horizontalHeaderItem(0).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(1).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(2).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(3).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(4).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(5).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(6).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(7).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(8).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(9).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(10).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(11).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(12).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(13).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(14).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(15).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(16).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(17).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(18).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(19).setTextAlignment(Qt.AlignHCenter)
-        self.FPtable.horizontalHeaderItem(20).setTextAlignment(Qt.AlignHCenter)
+        if self.enum is None:
+            headers = ['Name'] + ['']*20
+        else:
+            headers = ['Name'] + self.enum
+        self.FPtable.setHorizontalHeaderLabels(headers)
+        header = self.FPtable.horizontalHeader()
+        for i in range(21):
+            header.setDefaultAlignment(Qt.AlignHCenter)
     
         for position, players in self.display_data.items():
             for player, charac in players.items():
@@ -131,9 +113,6 @@ class FieldPlayersWindow(QMainWindow):
     def resetFilter(self):
         self.display_data = self.original_data.copy()
         self.populateTable()
-    
-    def showResults(self):
-        pass
 
     def backToMain(self):
         self.close()
