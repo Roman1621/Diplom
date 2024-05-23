@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QComboBox, QDialog, QVBoxLayout, QSplitter, QPushButton, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QSpinBox, QComboBox, QDialog, QVBoxLayout, QSplitter, QPushButton, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
 from clusterization import clusterization
@@ -69,6 +69,10 @@ class ClusterFPWindow(QMainWindow):
         else:
             self.enum = listOfChar
         self.dirs = ['По возрастанию', 'По убыванию']
+
+        self.numOfClusters = QSpinBox()
+        self.numOfClusters.setRange(3,10)
+
         self.comboBox1 = QComboBox()
         self.comboBox2 = QComboBox()
         self.comboBox1.addItems(self.enum)
@@ -79,6 +83,7 @@ class ClusterFPWindow(QMainWindow):
         self.dirBox1.addItems(self.dirs)
         self.dirBox2.addItems(self.dirs)
 
+        menuLayout.addWidget(self.numOfClusters)
         menuLayout.addWidget(self.comboBox1)
         menuLayout.addWidget(self.dirBox1)
         menuLayout.addWidget(self.comboBox2)
@@ -93,9 +98,10 @@ class ClusterFPWindow(QMainWindow):
         direction1 = self.dirBox1.currentText()
         index2 = self.comboBox2.currentIndex()
         direction2 = self.dirBox2.currentText()
+        number = self.numOfClusters.value()
         self.figure.clf()
         ax = self.figure.add_subplot(111)
-        labels, centroids, players, origX, origY = clusterization(index1, index2, self.dct, ax, self.enum[index1], self.enum[index2], direction1, direction2)
+        labels, centroids, players, origX, origY = clusterization(index1, index2, self.dct, ax, self.enum[index1], self.enum[index2], direction1, direction2, number)
         self.canvas.draw()
 
         if index1 == index2:

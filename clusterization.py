@@ -14,7 +14,7 @@ def getClusterData(diction):
     
     return cluster_data
 
-def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel, dir1, dir2):
+def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel, dir1, dir2, numberOfCl):
     data = getClusterData(dct)
     data_to_clusterX = np.array([item[2] for item in data[parameter1]])
     data_to_clusterY = np.array([item[2] for item in data[parameter2]])
@@ -27,7 +27,7 @@ def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel, dir1, dir2):
         reverse_indices.append(1)
     n_points = normalize_data(points, reverse_indices)
 
-    kmeans = KMeans(n_clusters=9, random_state=0, n_init=10).fit(n_points)
+    kmeans = KMeans(n_clusters=numberOfCl, random_state=0, n_init=10).fit(n_points)
     labels = kmeans.labels_
     centroids = kmeans.cluster_centers_
 
