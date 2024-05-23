@@ -70,12 +70,21 @@ class ClusterGKWindow(QMainWindow):
             self.enum = ['Characteristic' + str(i + 1) for i in range(average_length)]
         else:
             self.enum = listOfChar
+        self.dirs = ['По возрастанию', 'По убыванию']
         self.comboBox1 = QComboBox()
         self.comboBox2 = QComboBox()
         self.comboBox1.addItems(self.enum)
         self.comboBox2.addItems(self.enum)
+        
+        self.dirBox1 = QComboBox()
+        self.dirBox2 = QComboBox()
+        self.dirBox1.addItems(self.dirs)
+        self.dirBox2.addItems(self.dirs)
+
         menuLayout.addWidget(self.comboBox1)
+        menuLayout.addWidget(self.dirBox1)
         menuLayout.addWidget(self.comboBox2)
+        menuLayout.addWidget(self.dirBox2)
 
         analyze_button = QPushButton("Анализировать", menuWidget)
         analyze_button.clicked.connect(self.performAnalysis)
@@ -83,10 +92,12 @@ class ClusterGKWindow(QMainWindow):
     
     def performAnalysis(self):
         index1 = self.comboBox1.currentIndex()
+        direction1 = self.dirBox1.currentText()
         index2 = self.comboBox2.currentIndex()
+        direction2 = self.dirBox2.currentText()
         self.figure.clf()
         ax = self.figure.add_subplot(111)
-        labels, centroids, players, origX, origY = clusterization(index1, index2, self.dct, ax, self.enum[index1], self.enum[index2])
+        labels, centroids, players, origX, origY = clusterization(index1, index2, self.dct, ax, self.enum[index1], self.enum[index2], direction1, direction2)
         self.canvas.draw()
 
         if index1 == index2 or not self.enum[index1] == 'Goals Against':
@@ -121,15 +132,19 @@ class ClusterGKWindow(QMainWindow):
 
             player_scores = {}
             for player_name, stats in player_stats.items():
-                player_scores[player_name] = [stats[self.enum.index(stat)] for stat, _ in selected_stats]
+                score = 0
+                selStats = []
+                for stat, priority, direction in selected_stats:
+                    index = self.enum.index(stat)
+                    value = stats[index]
+                    if direction == "По убыванию":
+                        value = -value
+                    score += value * priority
+                    selStats.append(stats[index])
+                player_scores[player_name] = (selStats, score)
 
-            best_players = []
-            for player_name, stats in player_scores.items():
-                score = sum([len(self.enum) - priority + 1 for _, priority in selected_stats]) * sum(stats)
-                best_players.append((player_name, *stats, score))
-
-            best_players = sorted(best_players, key=lambda x: x[-1], reverse=True)[:5]
-            results_dialog = ResultsDialog(best_players, self)
+            best_players = sorted(player_scores.items(), key=lambda x: x[1][1], reverse=True)[:5]
+            results_dialog = ResultsDialog([(name, *data[0], data[1]) for name, data in best_players], self)
             results_dialog.exec_()
 
     def backToGK(self):

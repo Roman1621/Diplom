@@ -14,16 +14,16 @@ def getClusterData(diction):
     
     return cluster_data
 
-def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel):
+def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel, dir1, dir2):
     data = getClusterData(dct)
     data_to_clusterX = np.array([item[2] for item in data[parameter1]])
     data_to_clusterY = np.array([item[2] for item in data[parameter2]])
 
     points = np.column_stack((data_to_clusterX, data_to_clusterY))
     reverse_indices = []
-    if xlabel in ['Goals Against', 'Avg. Length of Goal Kicks']:
+    if dir1 == 'По убыванию':
         reverse_indices.append(0)
-    if ylabel in ['Goals Against', 'Avg. Length of Goal Kicks']:
+    if dir2 == 'По убыванию':
         reverse_indices.append(1)
     n_points = normalize_data(points, reverse_indices)
 
@@ -36,7 +36,6 @@ def clusterization(parameter1, parameter2, dct, ax, xlabel, ylabel):
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 
-    # Добавляем интерактивные аннотации
     cursor = mplcursors.cursor(scatter, hover=True)
     cursor.connect("add", lambda sel: sel.annotation.set_text(data[parameter1][sel.index][1]))
     cursor.connect("remove", lambda sel: sel.annotation.set_visible(False))

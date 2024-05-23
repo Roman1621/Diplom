@@ -66,7 +66,7 @@ class GoalkeepersWindow(QMainWindow):
         invalid_players = []
         for players in self.dct.values():
             for player, charac in players.items():
-                if len(charac) != 13:  # проверка на недостаток значений в массиве
+                if len(charac) != 13:
                     invalid_players.append(player)
                     continue
                 for col in range(14):
