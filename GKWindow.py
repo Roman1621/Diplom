@@ -47,7 +47,22 @@ class GoalkeepersWindow(QMainWindow):
         self.populateTable()
 
     def populateTable(self):
-        self.GKtable.setColumnCount(14)
+        numberOfCharacterisitic = 0
+        if self.enum is None:
+            lengths = []
+            for position, players in self.dct.items():
+                for name, characteristics in players.items():
+                    lengths.append(len(characteristics))
+
+            if lengths:
+                average_length = round(sum(lengths) / len(lengths))
+            else:
+                average_length = 0
+            numberOfCharacterisitic = average_length
+        else:
+            numberOfCharacterisitic = len(self.enum)
+        
+        self.GKtable.setColumnCount(numberOfCharacterisitic+1)
         rowsCount = 0
         for cur in self.dct.values():
             rowsCount += len(cur)
@@ -56,17 +71,17 @@ class GoalkeepersWindow(QMainWindow):
         if self.enum:
             headers = ['Name'] + self.enum   
         else:
-            headers = ['Name'] + ['']*13
+            headers = ['Name'] + ['']*numberOfCharacterisitic
         
         self.GKtable.setHorizontalHeaderLabels(headers)
-        for i in range(14):
+        for i in range(numberOfCharacterisitic):
             self.GKtable.horizontalHeaderItem(i).setTextAlignment(Qt.AlignHCenter)
 
         row = 0
         invalid_players = []
         for players in self.dct.values():
             for player, charac in players.items():
-                if len(charac) != 13:
+                if len(charac) != numberOfCharacterisitic:
                     invalid_players.append(player)
                     continue
                 for col in range(14):

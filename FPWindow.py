@@ -60,23 +60,38 @@ class FieldPlayersWindow(QMainWindow):
         self.centralWidget().layout().addWidget(self.FPtable)
     
     def populateTable(self):
+        numberOfCharacterisitic = 0
+        if self.enum is None:
+            lengths = []
+            for position, players in self.original_data.items():
+                for name, characteristics in players.items():
+                    lengths.append(len(characteristics))
+
+            if lengths:
+                average_length = round(sum(lengths) / len(lengths))
+            else:
+                average_length = 0
+            numberOfCharacterisitic = average_length
+        else:
+            numberOfCharacterisitic = len(self.enum)
+            
         self.FPtable.setSortingEnabled(False)
-        self.FPtable.setRowCount(0)
+        self.FPtable.setColumnCount(numberOfCharacterisitic+2)
         row = 0
 
         if self.enum is None:
-            headers = ['Name'] + ['']*20
+            headers = ['Name', 'Position'] + ['']*numberOfCharacterisitic
         else:
-            headers = ['Name'] + self.enum
+            headers = ['Name', 'Position'] + self.enum
         self.FPtable.setHorizontalHeaderLabels(headers)
         header = self.FPtable.horizontalHeader()
-        for i in range(21):
+        for i in range(numberOfCharacterisitic+2):
             header.setDefaultAlignment(Qt.AlignHCenter)
     
         for position, players in self.display_data.items():
             for player, charac in players.items():
                 self.FPtable.insertRow(row)
-                for col in range(21):
+                for col in range(numberOfCharacterisitic+2):
                     item = QTableWidgetItem()
                     if col == 0:
                         item.setData(Qt.DisplayRole, player)

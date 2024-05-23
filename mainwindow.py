@@ -51,6 +51,29 @@ class MainWindow(QMainWindow):
         file_menu.addAction(delete_action)
         file_menu.addAction(help_action)
 
+        file_menu.setStyleSheet("""
+            QMenuBar {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                font-family: Montserrat;
+                font-style: Italic;
+                padding: 4px 4px;
+            }
+            QMenuBar::item {
+                background: transparent;
+                padding: 4px 8px;
+                border: 4px solid #0D0221;
+                border-radius: 5px;
+            }
+            QMenuBar::item:selected { 
+                color: #C2E7D9;
+                background-color: transparent;
+                border: 4px solid #C2E7D9;
+                border-radius: 5px;
+            }
+        """)
+
         self.goalkeepers_button = None
         self.fieldPlayers_button = None
         self.result = dict()
