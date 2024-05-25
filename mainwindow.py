@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QLabel, QGridLayout, QWidget, qApp, QAction, QShortcut, QSizePolicy, QFileDialog, QPushButton, QTableWidget, QTableWidgetItem, QAbstractItemView
+from PyQt5.QtWidgets import QMainWindow, QLabel, QGridLayout, QWidget, qApp, QAction, QShortcut, QFileDialog, QPushButton, QTableWidget, QAbstractItemView
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5 import QtWidgets
@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
  
-        self.setMinimumSize(QSize(480, 320))
+        self.setMinimumSize(QSize(700, 420))
         self.setWindowTitle("КтоЗабил")
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -62,15 +62,20 @@ class MainWindow(QMainWindow):
             }
             QMenuBar::item {
                 background: transparent;
-                padding: 4px 8px;
-                border: 4px solid #0D0221;
-                border-radius: 5px;
             }
             QMenuBar::item:selected { 
                 color: #C2E7D9;
                 background-color: transparent;
-                border: 4px solid #C2E7D9;
+                border: 2px solid #C2E7D9;
                 border-radius: 5px;
+            }
+        """)
+
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #C2E7D9;
+                border: 4px solid #26408B;
+                border-radius: 10px;
             }
         """)
 
@@ -94,7 +99,7 @@ class MainWindow(QMainWindow):
             if 'GK' in cur.keys():
                 self.GKCharac = cur['GK']
             if 'NON-GK' not in cur.keys() and 'GK' not in cur.keys():
-                QMessageBox.information(self, "Неизввестные атрибуты", "Неизвестное имя атрибутов\nПриведите файл к виду:\n#NON-GK\n[list of attributes]\n#GK\n[list of attributes]\nИли выберите другой файл")
+                QMessageBox.information(self, "Неизвестные атрибуты", "Неизвестное имя атрибутов\nПриведите файл к виду:\n#NON-GK\n[list of attributes]\n#GK\n[list of attributes]\nИли выберите другой файл")
         
 
     def importDS(self):
@@ -104,16 +109,20 @@ class MainWindow(QMainWindow):
         if files:
             for f in files:
                 curFile = parsDStoDict(f)
-                curDict = dict()
-                name = os.path.splitext(os.path.basename(f))[0]
-                curDict[name] = curFile
-                self.result.update(curDict)
+                if curFile == -1:
+                    QMessageBox.information(self, "Неизвестный тип файла", "Неизвестный тип файла.\nПриведите его к виду:\nName\n[Attribute Vector]\nИли выберите другой файл")
+                else:
+                    curDict = dict()
+                    name = os.path.splitext(os.path.basename(f))[0]
+                    curDict[name] = curFile
+                    self.result.update(curDict)
 
             if 'GoalKeepers' in self.result.keys():
                 self.create_GKButton()
             if 'AtMid_Wingers' in self.result.keys() or 'CenterBacks' in self.result.keys() or 'Forwards' in self.result.keys() or 'FullBacks' in self.result.keys() or 'Midfielders' in self.result.keys():
                 self.create_FPButton()
-            self.addTableToMainWindow()
+            if self.result:
+                self.addTableToMainWindow()
 
     def editListOfPls(self, key):
         cur = self.result
@@ -128,7 +137,25 @@ class MainWindow(QMainWindow):
             self.goalkeepers_button.deleteLater()
         self.goalkeepers_button = QPushButton("Вратари", self)
         self.goalkeepers_button.clicked.connect(self.open_GK_window)
-        self.centralWidget().layout().addWidget(self.goalkeepers_button)
+        self.goalkeepers_button.setStyleSheet("""
+            QPushButton {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 10px 50px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            QPushButton:hover {
+                color: #C2E7D9;
+                border: 2px solid #C2E7D9;
+                border-radius: 5px;
+            }
+            QPushButton:pressed {
+                color: #C2E7D9;
+            }
+        """)
+        self.centralWidget().layout().addWidget(self.goalkeepers_button, 0, 0)
 
     def open_GK_window(self):
         self.gk_window = GoalkeepersWindow(self, self.editListOfPls(1), self.GKCharac)
@@ -140,7 +167,25 @@ class MainWindow(QMainWindow):
             self.fieldPlayers_button.deleteLater()
         self.fieldPlayers_button = QPushButton("Полевые игроки", self)
         self.fieldPlayers_button.clicked.connect(self.open_FP_window)
-        self.centralWidget().layout().addWidget(self.fieldPlayers_button)
+        self.fieldPlayers_button.setStyleSheet("""
+            QPushButton {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 10px 30px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            QPushButton:hover {
+                color: #C2E7D9;
+                border: 2px solid #C2E7D9;
+                border-radius: 5px;
+            }
+            QPushButton:pressed {
+                color: #C2E7D9;
+            }
+        """)
+        self.centralWidget().layout().addWidget(self.fieldPlayers_button, 1, 0)
     
     def open_FP_window(self):
         self.fp_window = FieldPlayersWindow(self, self.editListOfPls(2), self.nonGKCharac)
@@ -164,14 +209,53 @@ class MainWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(['Name', 'Postion'])
         self.table.horizontalHeaderItem(0).setTextAlignment(Qt.AlignHCenter)
         self.table.horizontalHeaderItem(1).setTextAlignment(Qt.AlignHCenter)
-
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background-color: #0F084B;
+                gridline-color: #26408B;
+                font-size: 18px;
+            }
+            QHeaderView::section {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                padding: 4px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            QTableCornerButton::section {
+                background-color: #a6cfd5;
+            } 
+            QTableWidget::item {
+                color: #0D0221;
+                background-color: #a6cfd5;
+            }
+            QTableWidget::item:selected {
+                background-color: #C2E7D9;
+                color: #0D0221;
+            }
+            QScrollBar:vertical, QScrollBar:horizontal {
+                border: 1px solid #26408B;
+                background: #a6cfd5;
+            }
+            QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                background: #0D0221;
+                min-height: 20px;
+                min-width: 20px;
+            }
+            QScrollBar::add-line, QScrollBar::sub-line {
+                background: #26408B;
+            }
+        """)
+        
         row = 0
         for key, players in self.result.items():
             for player in players:
                 self.table.setItem(row, 0, QtWidgets.QTableWidgetItem(player))
                 self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(key))
                 row += 1
-        self.table.resizeColumnsToContents()
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
         self.table.setSortingEnabled(True)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.centralWidget().layout().addWidget(self.table)

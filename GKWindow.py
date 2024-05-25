@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout, QShortcut, QAction, QTableWidget, QSizePolicy, QTableWidgetItem, QMessageBox, QAbstractItemView
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
+from PyQt5 import QtWidgets
 
 from ClusterGKWindow import ClusterGKWindow
 
@@ -15,6 +16,14 @@ class GoalkeepersWindow(QMainWindow):
 
         grid_layout = QGridLayout()
         central_widget.setLayout(grid_layout)
+
+        self.setStyleSheet("""
+            GoalkeepersWindow {
+                background-color: #C2E7D9;
+                border: 4px solid #26408B;
+                border-radius: 10px;
+            }
+        """)
 
         exit_shortcut = QShortcut(QKeySequence('Ctrl+Q'), self)
         exit_shortcut.activated.connect(self.close)
@@ -40,6 +49,26 @@ class GoalkeepersWindow(QMainWindow):
         file_menu.addAction(sorting_action)
         file_menu.addAction(clusterization_action)
         file_menu.addAction(help_action)
+
+        file_menu.setStyleSheet("""
+            QMenuBar {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                font-family: Montserrat;
+                font-style: Italic;
+                padding: 4px 4px;
+            }
+            QMenuBar::item {
+                background: transparent;
+            }
+            QMenuBar::item:selected { 
+                color: #C2E7D9;
+                background-color: transparent;
+                border: 2px solid #C2E7D9;
+                border-radius: 5px;
+            }
+        """)
 
         self.dct = dictOfGKs
         self.enum = GKchar
@@ -94,10 +123,52 @@ class GoalkeepersWindow(QMainWindow):
                 row += 1
         if invalid_players:
             QMessageBox.warning(self, "Внимание", f"У следующих игроков недостаточно значений в массиве:\n{', '.join(invalid_players)}")
-        self.GKtable.resizeColumnsToContents()
-        self.GKtable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
+        header = self.GKtable.horizontalHeader()
+        for i in range(numberOfCharacterisitic):
+            header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(numberOfCharacterisitic, QtWidgets.QHeaderView.Stretch)
+
         self.GKtable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.centralWidget().layout().addWidget(self.GKtable)
+        
+        self.GKtable.setStyleSheet("""
+            QTableWidget {
+                background-color: #0F084B;
+                gridline-color: #26408B;
+                font-size: 18px;
+            }
+            QHeaderView::section {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                padding: 4px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            QTableCornerButton::section {
+                background-color: #a6cfd5;
+            } 
+            QTableWidget::item {
+                color: #0D0221;
+                background-color: #a6cfd5;
+            }
+            QTableWidget::item:selected {
+                background-color: #C2E7D9;
+                color: #0D0221;
+            }
+            QScrollBar:vertical, QScrollBar:horizontal {
+                border: 1px solid #26408B;
+                background: #a6cfd5;
+            }
+            QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                background: #0D0221;
+                min-height: 20px;
+                min-width: 20px;
+            }
+            QScrollBar::add-line, QScrollBar::sub-line {
+                background: #26408B;
+            }
+        """)
 
     def toggleSorting(self):
         cur = self.GKtable.isSortingEnabled()

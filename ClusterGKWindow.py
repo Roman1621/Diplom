@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow, QDialog, QSpinBox, QComboBox, QWidget, QSplitter, QPushButton, QVBoxLayout, QShortcut, QAction, QTableWidget, QAbstractItemView, QTableWidgetItem, QMessageBox
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QKeySequence
+from PyQt5 import QtWidgets
+
 from clusterization import clusterization
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -33,6 +35,52 @@ class ClusterGKWindow(QMainWindow):
         self.bestPlayersTable = QTableWidget(0, 2)
         self.bestPlayersTable.setHorizontalHeaderLabels(["Имя игрока", "Значение"])
         menuLayout.addWidget(self.bestPlayersTable)
+        self.bestPlayersTable.setStyleSheet("""
+            QTableWidget {
+                background-color: #0F084B;
+                gridline-color: #26408B;
+                font-size: 18px;
+            }
+            QHeaderView::section {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                padding: 4px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            QTableCornerButton::section {
+                background-color: #a6cfd5;
+            } 
+            QTableWidget::item {
+                color: #0D0221;
+                background-color: #a6cfd5;
+            }
+            QTableWidget::item:selected {
+                background-color: #C2E7D9;
+                color: #0D0221;
+            }
+            QScrollBar:vertical, QScrollBar:horizontal {
+                border: 1px solid #26408B;
+                background: #a6cfd5;
+            }
+            QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                background: #0D0221;
+                min-height: 20px;
+                min-width: 20px;
+            }
+            QScrollBar::add-line, QScrollBar::sub-line {
+                background: #26408B;
+            }
+        """)
+        self.bestPlayersTable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+
+        self.setStyleSheet("""
+            ClusterGKWindow {
+                background-color: #C2E7D9;
+                border: 4px solid #26408B;
+                border-radius: 10px;
+            }
+        """)
 
         exit_shortcut = QShortcut(QKeySequence('Ctrl+Q'), self)
         exit_shortcut.activated.connect(self.close)
@@ -53,6 +101,26 @@ class ClusterGKWindow(QMainWindow):
         file_menu.addAction(back_action)
         file_menu.addAction(best_action)
         file_menu.addAction(help_action)
+
+        file_menu.setStyleSheet("""
+            QMenuBar {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                font-family: Montserrat;
+                font-style: Italic;
+                padding: 4px 4px;
+            }
+            QMenuBar::item {
+                background: transparent;
+            }
+            QMenuBar::item:selected { 
+                color: #C2E7D9;
+                background-color: transparent;
+                border: 2px solid #C2E7D9;
+                border-radius: 5px;
+            }
+        """)
 
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
@@ -85,6 +153,51 @@ class ClusterGKWindow(QMainWindow):
         self.dirBox1.addItems(self.dirs)
         self.dirBox2.addItems(self.dirs)
 
+        self.numOfClusters.setStyleSheet("""
+            QSpinBox {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 4px;
+            }
+        """)
+
+        self.comboBox1.setStyleSheet("""
+            QComboBox {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 4px;
+            }
+        """)
+
+        self.comboBox2.setStyleSheet("""
+            QComboBox {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 4px;
+            }
+        """)
+
+        self.dirBox1.setStyleSheet("""
+            QComboBox {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 4px;
+            }
+        """)
+
+        self.dirBox2.setStyleSheet("""
+            QComboBox {
+                background-color: #a6cfd5;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 4px;
+            }
+        """)
+
         menuLayout.addWidget(self.numOfClusters)
         menuLayout.addWidget(self.comboBox1)
         menuLayout.addWidget(self.dirBox1)
@@ -94,6 +207,24 @@ class ClusterGKWindow(QMainWindow):
         analyze_button = QPushButton("Анализировать", menuWidget)
         analyze_button.clicked.connect(self.performAnalysis)
         menuLayout.addWidget(analyze_button)
+        analyze_button.setStyleSheet("""
+            QPushButton {
+                background-color: #26408B;
+                color: #0D0221;
+                font-size: 18px;
+                padding: 10px 50px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            QPushButton:hover {
+                color: #C2E7D9;
+                border: 2px solid #C2E7D9;
+                border-radius: 5px;
+            }
+            QPushButton:pressed {
+                color: #C2E7D9;
+            }
+        """)
     
     def performAnalysis(self):
         index1 = self.comboBox1.currentIndex()
@@ -119,7 +250,7 @@ class ClusterGKWindow(QMainWindow):
             self.bestPlayersTable.insertRow(row_position)
             self.bestPlayersTable.setItem(row_position, 0, QTableWidgetItem(player))
             self.bestPlayersTable.setItem(row_position, 1, QTableWidgetItem(f"{point[0]:.2f}, {point[1]:.2f}"))
-        self.bestPlayersTable.resizeColumnsToContents()
+        self.bestPlayersTable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.bestPlayersTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
     def getBestGK(self):
