@@ -3,7 +3,10 @@ import ast
 
 def parsDStoDict(path):
     d = dict()
-    cur = pd.read_csv(path, usecols=['Name', 'Attribute Vector'])
+    cur = pd.read_csv(path)
+    if 'Attribute Vector' not in cur.columns:
+        return -1
+    cur = cur[['Name', 'Attribute Vector']]
     for index, row in cur.iterrows():
         attList = ast.literal_eval(row['Attribute Vector'])
         d[row['Name']] = attList
@@ -14,7 +17,7 @@ def parsAtNames(path):
         data = file.read().strip().split('\n')
         attribute_dict = {}
         current_section = None
-        section_marker = '#'  # Предполагаемый разделитель секций
+        section_marker = '#'
         for line in data:
             if line == '':
                 continue
