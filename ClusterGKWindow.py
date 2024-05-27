@@ -257,7 +257,7 @@ class ClusterGKWindow(QMainWindow):
         if self.enum:
             dialog = SelectCriterialDialog(self.enum, self)
         if dialog.exec_() == QDialog.Accepted:
-            selected_stats = dialog.selected_criteria()
+            selected_stats,numOfBest = dialog.selected_criteria()
             if not selected_stats:
                 QMessageBox.warning(self, "Внимание", "Не выбраны критерии для анализа.")
                 return
@@ -280,8 +280,8 @@ class ClusterGKWindow(QMainWindow):
                     selStats.append(stats[index])
                 player_scores[player_name] = (selStats, score)
 
-            best_players = sorted(player_scores.items(), key=lambda x: x[1][1], reverse=True)[:5]
-            results_dialog = ResultsDialog([(name, *data[0], data[1]) for name, data in best_players], self)
+            best_players = sorted(player_scores.items(), key=lambda x: x[1][1], reverse=True)[:numOfBest.value()]
+            results_dialog = ResultsDialog([(name, *data[0], data[1]) for name, data in best_players], self.enum, self)
             results_dialog.exec_()
 
     def backToGK(self):

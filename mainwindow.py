@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.title = QLabel("Добро пожаловать в приложение\nИмпортируйте датасет со статистическими данными\nИнструкции о формате данных и возможных действиях представлена во вкладке \"Помощь\"", self)
         self.title.setAlignment(QtCore.Qt.AlignCenter)
         grid_layout.addWidget(self.title, 0, 0)
+        self.title.setStyleSheet("QLabel { color: #0D0221; font-size: 18px; }")
 
         exit_shortcut = QShortcut(QKeySequence('Ctrl+Q'), self)
         exit_shortcut.activated.connect(self.close)
@@ -276,7 +277,14 @@ class MainWindow(QMainWindow):
                     if self.table:
                         self.table.clear()
                         self.table.setRowCount(0)
+                        self.table.deleteLater()
+                        self.table = None
                     QMessageBox.information(self, "Удаление", "Датасеты удалены.")
+                    self.title = QLabel("Добро пожаловать в приложение\nИмпортируйте датасет со статистическими данными\nИнструкции о формате данных и возможных действиях представлена во вкладке \"Помощь\"", self)
+                    self.title.setAlignment(QtCore.Qt.AlignCenter)
+                    self.centralWidget().layout().addWidget(self.title, 0, 0)
+                    self.title.setStyleSheet("QLabel { color: #0D0221; font-size: 18px; }")
+                    self.titleDeleted = False
                 elif item == "Часть датасетов":
                     self.deletePartOfDatasets()
                 self.updateButtons()
@@ -288,8 +296,21 @@ class MainWindow(QMainWindow):
             if key in self.result:
                 del self.result[key]
                 QMessageBox.information(self, "Удаление", f"Датасет {key} удален.")
-                self.addTableToMainWindow()
-                self.updateButtons()
+                if self.result == {}:
+                    self.result.clear()
+                    if self.table:
+                        self.table.clear()
+                        self.table.setRowCount(0)
+                        self.table.deleteLater()
+                        self.table = None
+                    self.title = QLabel("Добро пожаловать в приложение\nИмпортируйте датасет со статистическими данными\nИнструкции о формате данных и возможных действиях представлена во вкладке \"Помощь\"", self)
+                    self.title.setAlignment(QtCore.Qt.AlignCenter)
+                    self.centralWidget().layout().addWidget(self.title, 0, 0)
+                    self.title.setStyleSheet("QLabel { color: #0D0221; font-size: 18px; }")
+                    self.titleDeleted = False
+                else:
+                    self.addTableToMainWindow()
+                    self.updateButtons()
     
     def updateButtons(self):
         if 'GoalKeepers' not in self.result:
