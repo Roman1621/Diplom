@@ -22,10 +22,13 @@ def parsAtNames(path):
             if line == '':
                 continue
             if line.startswith(section_marker):
-                current_section = line.replace(section_marker, '')
-                attribute_dict[current_section] = []
+                if current_section is not None and current_list:
+                    attribute_dict[current_section] = ast.literal_eval(''.join(current_list))
+                current_section = line.replace(section_marker, '').strip()
+                current_list = []
             else:
                 if current_section is not None:
-                    line = line[1:-1]
-                    attribute_dict[current_section].append(ast.literal_eval(line))
+                    current_list.append(line.strip())
+        if current_section is not None and current_list:
+            attribute_dict[current_section] = ast.literal_eval(''.join(current_list))
         return attribute_dict

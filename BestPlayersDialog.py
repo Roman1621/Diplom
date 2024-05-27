@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QWidget, QScrollArea, QPushButton, QCheckBox, QSpinBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QWidget, QScrollArea, QPushButton, QLabel, QCheckBox, QSpinBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets
 
@@ -64,6 +64,12 @@ class SelectCriterialDialog(QDialog):
             }
         """)
 
+        self.numOfBestPlayersLabel = QLabel("Число лучших игроков:", self)
+        layout.addWidget(self.numOfBestPlayersLabel)
+        self.numOfBestPls = QSpinBox(self)
+        self.numOfBestPls.setRange(3,10)
+        layout.addWidget(self.numOfBestPls)
+
         self.checkboxes = []
         self.spinboxes = []
         self.dirCombos = []
@@ -93,6 +99,7 @@ class SelectCriterialDialog(QDialog):
         self.applyStyles()
 
     def applyStyles(self):
+        self.numOfBestPlayersLabel.setStyleSheet("QLabel { color: #0D0221; font-size: 18px; }")
         for cb in self.checkboxes:
             cb.setStyleSheet("QCheckBox { background-color: #a6cfd5; color: #0D0221; font-size: 18px; padding: 4px; }")
         for sb in self.spinboxes:
@@ -119,21 +126,21 @@ class SelectCriterialDialog(QDialog):
         """)
 
     def selected_criteria(self):
-        return [(cb.text(), sb.value(), dc.currentText()) for cb, sb, dc in zip(self.checkboxes, self.spinboxes, self.dirCombos) if cb.isChecked()]
+        return [(cb.text(), sb.value(), dc.currentText()) for cb, sb, dc in zip(self.checkboxes, self.spinboxes, self.dirCombos) if cb.isChecked()], self.numOfBestPls
 
 class ResultsDialog(QDialog):
-    def __init__(self, diction, parent=None):
+    def __init__(self, diction, header_labels, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Результаты анализа")
-        self.setGeometry(100, 100, 600, 300)
+        self.setGeometry(100, 100, 1000, 300)
         
         layout = QVBoxLayout(self)
 
         num_stats = len(diction[0]) - 2
         self.resultsTable = QTableWidget(0, num_stats + 1)
         self.resultsTable.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
-
-        header_labels = ["Имя игрока"] + [f"Характеристика {i+1}" for i in range(num_stats)]
+        
+        header_labels = ["Имя игрока"] + header_labels
         self.resultsTable.setHorizontalHeaderLabels(header_labels)
         layout.addWidget(self.resultsTable, 1)
 
