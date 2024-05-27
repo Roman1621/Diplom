@@ -10,7 +10,7 @@ class GoalkeepersWindow(QMainWindow):
         super().__init__()
         self.mainWindow = main_window
         self.setWindowTitle("КтоЗабил. Вратари")
-        self.setMinimumSize(QSize(1300, 960))
+        self.setMinimumSize(QSize(1300, 860))
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
