@@ -89,6 +89,7 @@ class FieldPlayersWindow(QMainWindow):
         self.centralWidget().layout().addWidget(self.FPtable)
     
     def populateTable(self):
+        self.FPtable.setRowCount(0)
         numberOfCharacterisitic = 0
         if self.enum is None:
             lengths = []
