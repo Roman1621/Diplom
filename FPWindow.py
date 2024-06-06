@@ -9,7 +9,7 @@ class FieldPlayersWindow(QMainWindow):
         super().__init__()
         self.mainWindow = main_window
         self.setWindowTitle("КтоЗабил. Полевые")
-        self.setMinimumSize(QSize(1500, 960))
+        self.setMinimumSize(QSize(1500, 860))
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QGridLayout()
@@ -89,6 +89,7 @@ class FieldPlayersWindow(QMainWindow):
         self.centralWidget().layout().addWidget(self.FPtable)
     
     def populateTable(self):
+        self.FPtable.setRowCount(0)
         numberOfCharacterisitic = 0
         if self.enum is None:
             lengths = []
